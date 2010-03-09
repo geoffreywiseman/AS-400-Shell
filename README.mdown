@@ -1,0 +1,8 @@
+# AS/400 Shell
+
+A simple shell for interacting with the AS/400 via jt400.  After spending a lot of time writing custom
+code to interrogate an AS/400, it became increasingly simpler to build my own tooling for working with
+the AS/400.
+
+As a result, this shell was born. I don't know that it will be useful for anyone else, but I may never
+need it again myself, and it seemed wise to share it as widely as I could.
