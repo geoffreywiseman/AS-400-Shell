@@ -10,6 +10,7 @@ import com.codiform.as400shell.command.HelpCommand;
 import com.codiform.as400shell.command.InfoCommand;
 import com.codiform.as400shell.command.ListCommand;
 import com.codiform.as400shell.command.QuitCommand;
+import com.codiform.as400shell.command.ShowLibraryCommand;
 import com.codiform.as400shell.command.UnknownCommand;
 import com.ibm.as400.access.AS400;
 
@@ -27,9 +28,11 @@ public class Shell {
 		this.server = server;
 		this.commands = new HashMap<String, Command>();
 		addCommand( "quit", new QuitCommand() );
-		addCommand( "help", new HelpCommand( commands ) );
 		addCommand( "info", new InfoCommand() );
 		addCommand( "ls", new ListCommand() );
+		addCommand( "showLibrary", new ShowLibraryCommand() );
+
+		addCommand( "help", new HelpCommand( commands ) );
 	}
 
 	private void addCommand(String commandName, Command command) {
@@ -66,6 +69,8 @@ public class Shell {
 
 		Command command = lookupCommand( split[0] );
 		command.execute( context, getArguments( split ) );
+		context.out().flush();
+		context.err().flush();
 	}
 
 	private String[] getArguments(String[] split) {

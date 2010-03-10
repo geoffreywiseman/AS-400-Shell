@@ -1,0 +1,24 @@
+package com.codiform.as400shell.model;
+
+public enum FileType {
+	PHYSICAL("PF"), LOGICAL("LF"), COMMUNICATIONS("CMNF"), SAVE("SAVF"), TAPE("TAPF"), DISKETTE("DKTF"), DISPLAY("DSPF"), INTERACTIVE_COMMUNICATIONS("ICFF"), PRINTER("PRTF");
+	
+	private String code;
+	
+	private FileType( String code ) {
+		this.code = code;
+	}
+	
+	public String getCode() {
+		return code;
+	}
+	
+	public static FileType fromCode( String code ) {
+		for( FileType item : FileType.values() ) {
+			if( item.getCode().equals(code) ) {
+				return item;
+			}
+		}
+		return null;
+	}
+}

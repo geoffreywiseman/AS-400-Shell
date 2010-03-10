@@ -7,13 +7,13 @@ the AS/400.
 As a result, this shell was born. I don't know that it will be useful for anyone else, but I may never
 need it again myself, and it seemed wise to share it as widely as I could.
 
-## Apologies
+## Architectural Layering and Testing
 
-I'm writing this in a fairly exploratory style as I go, and I haven't attempted to try and isolate the
-AS400 layer from the rest of the code, which makes it difficult to write any isolated tests.  If I use
-this enough, it will warrant a better separation of the JT400 code from my own so that I can mock the 
-JT400 layer out and write good unit tests.  As it stands, I'd rather have no unit tests than integration 
-tests against an AS/400 server.
+I'm writing this in a fairly exploratory style as I go.  Although I've written some of this code elsewhere,
+I'm now writing it anew and against a new version of JTOpen.  In the long run, in order to make this code
+testable, I need to establish an abstraction layer over the JTOpen API that I control and can mock.  This
+code doesn't attempt to make that happen right now, and rather than write integration tests against the
+AS/400, I've chosen not to write automated tests.
 
-It is possible to make this testable, it's just enough more work that I can't justify it yet.  If you're
-volunteering, I'm listening.  ;)
+That needs to change, and if I end up using this shell enough to justify it, I'll probably evolve the
+API to achieve the architectural layering that will allow me to make it testable.
