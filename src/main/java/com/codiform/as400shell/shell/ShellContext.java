@@ -5,17 +5,22 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 
+import com.ibm.as400.access.AS400;
+
 public class ShellContext {
 
 	private BufferedReader input;
 	private PrintStream output;
 	private PrintStream error;
 	private boolean shouldContinue;
+	private AS400 server;
 
-	public ShellContext(InputStream input, PrintStream output, PrintStream error) {
+	public ShellContext(InputStream input, PrintStream output,
+			PrintStream error, AS400 server) {
 		this.input = new BufferedReader( new InputStreamReader( input ) );
 		this.output = output;
 		this.error = error;
+		this.server = server;
 		shouldContinue = true;
 	}
 
@@ -37,6 +42,10 @@ public class ShellContext {
 
 	public void exitAfterCommand() {
 		shouldContinue = false;
+	}
+	
+	public AS400 getServer() {
+		return server;
 	}
 
 }

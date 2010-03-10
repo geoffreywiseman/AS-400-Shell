@@ -7,6 +7,8 @@ import java.util.Map;
 
 import com.codiform.as400shell.command.Command;
 import com.codiform.as400shell.command.HelpCommand;
+import com.codiform.as400shell.command.InfoCommand;
+import com.codiform.as400shell.command.ListCommand;
 import com.codiform.as400shell.command.QuitCommand;
 import com.codiform.as400shell.command.UnknownCommand;
 import com.ibm.as400.access.AS400;
@@ -26,6 +28,8 @@ public class Shell {
 		this.commands = new HashMap<String, Command>();
 		addCommand( "quit", new QuitCommand() );
 		addCommand( "help", new HelpCommand( commands ) );
+		addCommand( "info", new InfoCommand() );
+		addCommand( "ls", new ListCommand() );
 	}
 
 	private void addCommand(String commandName, Command command) {
@@ -39,7 +43,7 @@ public class Shell {
 	 */
 	public void repl() {
 		ShellContext context = new ShellContext( System.in, System.out,
-				System.err );
+				System.err, server );
 		do {
 			printPrompt( context );
 			try {
