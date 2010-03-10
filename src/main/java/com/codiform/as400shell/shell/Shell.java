@@ -11,6 +11,7 @@ import com.codiform.as400shell.command.InfoCommand;
 import com.codiform.as400shell.command.ListCommand;
 import com.codiform.as400shell.command.QuitCommand;
 import com.codiform.as400shell.command.ShowLibraryCommand;
+import com.codiform.as400shell.command.ShowSchemaCommand;
 import com.codiform.as400shell.command.UnknownCommand;
 import com.ibm.as400.access.AS400;
 
@@ -31,6 +32,7 @@ public class Shell {
 		addCommand( "info", new InfoCommand() );
 		addCommand( "ls", new ListCommand() );
 		addCommand( "showLibrary", new ShowLibraryCommand() );
+		addCommand( "showSchema", new ShowSchemaCommand() );
 
 		addCommand( "help", new HelpCommand( commands ) );
 	}
