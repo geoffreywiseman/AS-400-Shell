@@ -34,8 +34,16 @@ public class ShowSchemaCommand extends ParsedArgumentCommand {
 
 	private static OptionParser getParser() {
 		OptionParser parser = new OptionParser();
-		parser.accepts( "include-logical",
-				"Include logical files (e.g. views) as well as physical files." );
+		parser.accepts(
+				"logical",
+				"Detail level for logical files, where 'full' includes record formats, 'summary' shows members and 'none' ignores logical files altogether." ).withOptionalArg().ofType(
+				String.class ).describedAs( "detailLevel" ).defaultsTo(
+				"summary" );
+		parser.accepts(
+				"physical",
+				"Detail level for physical files, where 'full' includes record formats, 'summary' shows members and 'none' ignores logical files altogether." ).withOptionalArg().ofType(
+				String.class ).describedAs( "detailLevel" ).defaultsTo(
+				"full" );
 		parser.accepts( "save", "Save the local file." ).withRequiredArg().describedAs(
 				"filename" );
 		return parser;
@@ -54,15 +62,36 @@ public class ShowSchemaCommand extends ParsedArgumentCommand {
 
 	@Override
 	public void execute(ShellContext context, OptionSet options) {
-
-		if( options.nonOptionArguments().size() == 1 ) {
-			try {
-				show( context, options );
-			} catch( Exception exception ) {
-				exception.printStackTrace( context.err() );
-			}
-		} else {
+		if( options.nonOptionArguments().size() != 1 ) {
+			context.err().println( "No library name specified." );
 			displayHelp( context );
+			return;
+		}
+
+		String detailLevel = (String) options.valueOf( "logical" );
+		if( detailLevel != "full" && detailLevel != "summary"
+				&& detailLevel != "none" ) {
+			context.err().println(
+					"Unknown detail level for logical files: "
+							+ detailLevel );
+			displayHelp( context );
+			return;
+		}
+
+		detailLevel = (String) options.valueOf( "physical" );
+		if( detailLevel != "full" && detailLevel != "summary"
+				&& detailLevel != "none" ) {
+			context.err().println(
+					"Unknown detail level for physical files: "
+							+ detailLevel );
+			displayHelp( context );
+			return;
+		}
+
+		try {
+			show( context, options );
+		} catch( Exception exception ) {
+			exception.printStackTrace( context.err() );
 		}
 	}
 
@@ -120,6 +149,12 @@ public class ShowSchemaCommand extends ParsedArgumentCommand {
 			LibraryFile file) throws XMLStreamException, IOException,
 			AS400SecurityException,
 			AS400Exception, InterruptedException, PropertyVetoException {
+		
+		if( file.getType() == FileType.LOGICAL && options.valueOf("logical").equals( "none" ) )
+			return;
+		if( file.getType() == FileType.PHYSICAL && options.valueOf("physical").equals( "none" ) )
+			return;
+		
 		writer.writeStartElement( "file" );
 		writer.writeAttribute( "name", file.getName() );
 		writer.writeAttribute( "type", file.getType().toString() );
@@ -136,10 +171,10 @@ public class ShowSchemaCommand extends ParsedArgumentCommand {
 
 	private boolean showDetails(FileType type, OptionSet options) {
 		if( type == FileType.PHYSICAL ) {
-			return true;
+			return options.valueOf( "physical" ).equals( "full" );
 		}
 		if( type == FileType.LOGICAL ) {
-			return options.has( "include-logical" );
+			return options.valueOf( "logical" ).equals( "full" );
 		}
 		return false;
 	}
