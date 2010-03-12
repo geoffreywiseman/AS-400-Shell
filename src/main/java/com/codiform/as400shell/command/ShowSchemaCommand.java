@@ -69,8 +69,7 @@ public class ShowSchemaCommand extends ParsedArgumentCommand {
 		}
 
 		String detailLevel = (String) options.valueOf( "logical" );
-		if( detailLevel != "full" && detailLevel != "summary"
-				&& detailLevel != "none" ) {
+		if( isOneOf( detailLevel, "full", "summary", "none" ) ) {
 			context.err().println(
 					"Unknown detail level for logical files: "
 							+ detailLevel );
@@ -79,8 +78,7 @@ public class ShowSchemaCommand extends ParsedArgumentCommand {
 		}
 
 		detailLevel = (String) options.valueOf( "physical" );
-		if( detailLevel != "full" && detailLevel != "summary"
-				&& detailLevel != "none" ) {
+		if( isOneOf( detailLevel, "full", "summary", "none" ) ) {
 			context.err().println(
 					"Unknown detail level for physical files: "
 							+ detailLevel );
@@ -93,6 +91,15 @@ public class ShowSchemaCommand extends ParsedArgumentCommand {
 		} catch( Exception exception ) {
 			exception.printStackTrace( context.err() );
 		}
+	}
+
+	private boolean isOneOf(String toMatch, String... matches) {
+		for( String item : matches ) {
+			if( toMatch.equals( matches ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void show(ShellContext context, OptionSet options)
