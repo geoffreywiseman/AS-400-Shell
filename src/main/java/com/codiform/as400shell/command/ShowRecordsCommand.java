@@ -159,10 +159,10 @@ public class ShowRecordsCommand extends ParsedArgumentCommand {
 			AS400Exception, InterruptedException, PropertyVetoException {
 
 		if( file.getType() == FileType.LOGICAL
-				&& showFiles( options, logical, false ) )
+				&& !showFiles( options, logical, false ) )
 			return;
 		if( file.getType() == FileType.PHYSICAL
-				&& showFiles( options, physical, true ) )
+				&& !showFiles( options, physical, true ) )
 			return;
 
 		writer.writeStartElement( "file" );
