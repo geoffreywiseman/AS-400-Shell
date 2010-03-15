@@ -1,6 +1,8 @@
 package com.codiform.as400shell.command;
 
 import java.beans.PropertyVetoException;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javanet.staxutils.IndentingXMLStreamWriter;
@@ -12,6 +14,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 import com.codiform.as400shell.model.FileType;
 import com.codiform.as400shell.model.Library;
@@ -28,25 +31,26 @@ import com.ibm.as400.access.RecordFormat;
 
 public class ShowSchemaCommand extends ParsedArgumentCommand {
 
-	public ShowSchemaCommand() {
-		super( getParser() );
-	}
+	private OptionSpec<String> logical, physical, output;
 
-	private static OptionParser getParser() {
-		OptionParser parser = new OptionParser();
-		parser.accepts(
-				"logical",
-				"Detail level for logical files, where 'full' includes record formats, 'summary' shows members and 'none' ignores logical files altogether." ).withOptionalArg().ofType(
-				String.class ).describedAs( "detailLevel" ).defaultsTo(
-				"summary" );
-		parser.accepts(
-				"physical",
-				"Detail level for physical files, where 'full' includes record formats, 'summary' shows members and 'none' ignores logical files altogether." ).withOptionalArg().ofType(
-				String.class ).describedAs( "detailLevel" ).defaultsTo(
-				"full" );
-		parser.accepts( "save", "Save the local file." ).withRequiredArg().describedAs(
-				"filename" );
-		return parser;
+	public ShowSchemaCommand() {
+		setParser( new OptionParser() {
+			{
+				logical = accepts(
+						"logical",
+						"Detail level for logical files, where 'full' includes record formats, 'summary' shows members and 'none' ignores logical files altogether." ).withOptionalArg().ofType(
+						String.class ).describedAs( "detailLevel" ).defaultsTo(
+						"summary" );
+				physical = accepts(
+						"physical",
+						"Detail level for physical files, where 'full' includes record formats, 'summary' shows members and 'none' ignores logical files altogether." ).withOptionalArg().ofType(
+						String.class ).describedAs( "detailLevel" ).defaultsTo(
+						"full" );
+				output = accepts( "output", "Save the output to a file." ).withRequiredArg().ofType(
+						String.class ).describedAs(
+						"filename" );
+			}
+		} );
 	}
 
 	@Override
@@ -68,34 +72,56 @@ public class ShowSchemaCommand extends ParsedArgumentCommand {
 			return;
 		}
 
-		String detailLevel = (String) options.valueOf( "logical" );
-		if( isOneOf( detailLevel, "full", "summary", "none" ) ) {
+		String detailLevel = options.valueOf( logical );
+		if( !isOneOf( detailLevel, "full", "summary", "none" ) ) {
 			context.err().println(
 					"Unknown detail level for logical files: "
-							+ detailLevel );
+					+ detailLevel );
 			displayHelp( context );
 			return;
 		}
 
-		detailLevel = (String) options.valueOf( "physical" );
-		if( isOneOf( detailLevel, "full", "summary", "none" ) ) {
+		detailLevel = options.valueOf( physical );
+		if( !isOneOf( detailLevel, "full", "summary", "none" ) ) {
 			context.err().println(
 					"Unknown detail level for physical files: "
-							+ detailLevel );
+					+ detailLevel );
 			displayHelp( context );
 			return;
 		}
 
 		try {
-			show( context, options );
+			if( redirectOutput( context, options ) ) {
+				show( context, options );
+				context.reset();
+			}
 		} catch( Exception exception ) {
 			exception.printStackTrace( context.err() );
 		}
 	}
 
+	private boolean redirectOutput(ShellContext context, OptionSet options) {
+		if( !options.has( output ) ) {
+			return true;
+		}
+
+		File file = new File( options.valueOf( output ) );
+		if( file.exists() ) {
+			context.err().println( "File already exists: " + output );
+			return false;
+		}
+
+		try {
+			context.redirectTo( file );
+		} catch( FileNotFoundException e ) {
+			e.printStackTrace( context.err() );
+		}
+		return true;
+	}
+
 	private boolean isOneOf(String toMatch, String... matches) {
 		for( String item : matches ) {
-			if( toMatch.equals( matches ) ) {
+			if( toMatch.equals( item ) ) {
 				return true;
 			}
 		}
@@ -156,12 +182,14 @@ public class ShowSchemaCommand extends ParsedArgumentCommand {
 			LibraryFile file) throws XMLStreamException, IOException,
 			AS400SecurityException,
 			AS400Exception, InterruptedException, PropertyVetoException {
-		
-		if( file.getType() == FileType.LOGICAL && options.valueOf("logical").equals( "none" ) )
+
+		if( file.getType() == FileType.LOGICAL
+				&& options.valueOf( "logical" ).equals( "none" ) )
 			return;
-		if( file.getType() == FileType.PHYSICAL && options.valueOf("physical").equals( "none" ) )
+		if( file.getType() == FileType.PHYSICAL
+				&& options.valueOf( "physical" ).equals( "none" ) )
 			return;
-		
+
 		writer.writeStartElement( "file" );
 		writer.writeAttribute( "name", file.getName() );
 		writer.writeAttribute( "type", file.getType().toString() );
@@ -284,5 +312,4 @@ public class ShowSchemaCommand extends ParsedArgumentCommand {
 			return item.toString();
 		}
 	}
-
 }

@@ -9,7 +9,14 @@ public abstract class ParsedArgumentCommand implements Command {
 
 	protected OptionParser parser;
 
+	public ParsedArgumentCommand() {
+	}
+	
 	public ParsedArgumentCommand(OptionParser parser) {
+		this.parser = parser;
+	}
+	
+	protected void setParser( OptionParser parser ) {
 		this.parser = parser;
 	}
 
